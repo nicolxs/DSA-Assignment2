@@ -1,0 +1,79 @@
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  jobTitle: String!
+  position: String!
+  role: String!
+}
+
+type DepartmentObjective {
+  id: ID!
+  objective: String!
+  percentageContribution: Float!
+  relatedKPI: ID!
+  createdBy: ID!
+  createdAt: String!
+}
+
+type KPI {
+  id: ID!
+  name: String!
+  unit: String!
+  weightage: Float!
+  createdBy: ID!
+  createdAt: String!
+}
+
+type EmployeeKPI {
+  id: ID!
+  value: Float!
+  grade: String!
+  kpi: ID!
+  employeeId: ID!
+  evaluatedBy: ID!
+  evalDate: String!
+}
+
+type Query {
+  getUser(id: ID!): User
+  getDepartmentObjective(id: ID!): DepartmentObjective
+  getKPI(id: ID!): KPI
+  getEmployeeKPI(id: ID!): EmployeeKPI
+}
+
+type Mutation {
+  createUser(input: UserInput): User
+  createDepartmentObjective(input: DepartmentObjectiveInput): DepartmentObjective
+  createKPI(input: KPIInput): KPI
+  createEmployeeKPI(input: EmployeeKPIInput): EmployeeKPI
+}
+
+input UserInput {
+  firstName: String!
+  lastName: String!
+  jobTitle: String!
+  position: String!
+  role: String!
+}
+
+input DepartmentObjectiveInput {
+  objective: String!
+  percentageContribution: Float!
+  relatedKPI: ID!
+}
+
+input KPIInput {
+  name: String!
+  unit: String!
+  weightage: Float!
+}
+
+input EmployeeKPIInput {
+  value: Float!
+  grade: String!
+  kpi: ID!
+  employeeId: ID!
+  evaluatedBy: ID!
+  evalDate: String!
+}
