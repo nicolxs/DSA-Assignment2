@@ -20,20 +20,51 @@ databaseName: "performance_db"
 };
 mongodb:Client mongoClient = check new (mongoConfig);
 
-
-type UserRecord record {
+//Hod user doc
+type HoDRecord record {
     string username;
     string passwrod;
     string role;
+    string department;
+    string position;
+    string email;
+    string assignedSupervisor;
+};
+
+//Supervisor Record
+type SupervisorRecord record{
+    string username;
+    string password;
+    string role;
+    string department;
+    string position;
+    string email;
+    string assignedSupervisor; //HoD's
 };
 
 
-type DocumentRecord record{
-    string id;
-    string title;
-    string content;
+type EmployeeRecord record {
+    string username;
+    string password;
+    string role;
+    string department;
+    string position;
+    string email;
+    string assignedSupervisor; // Supervisor's username or ID
 };
 
+//temporary user store(neeeds to be replacd with db queries)
+map<UserRecord> users ={};
+
+public function authenticateUser(string username, string password) returns boolean|error? {
+
+    UserRecord? user = users[username];
+    if (user == null || user.password != password) {
+        return false;
+    }
+    return true;
+
+}
 
 
 
