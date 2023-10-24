@@ -1,7 +1,7 @@
 # DSA-Assignment2
 Distributed Systems Assignment 2
 
-Question 1
+Question 1 - GraphQL
 
 
 
