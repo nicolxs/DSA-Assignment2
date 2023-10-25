@@ -1,0 +1,52 @@
+version: '3'
+services:
+  # Kafka Service
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+    networks:
+      - healthcare-network
+
+  # MongoDB
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - healthcare-network
+
+  # Health Admin Service
+  health-admin-service:
+    build: ./health-admin-service
+    container_name: health-admin-service
+    ports:
+      - "9090:9090"
+    depends_on:
+      - kafka
+      - mongodb
+    networks:
+      - healthcare-network
+
+  # Specialist Services
+  dermatology-service:
+    build: ./dermatology-service
+    container_name: dermatology-service
+    depends_on:
+      - kafka
+      - mongodb
+    networks:
+      - healthcare-network
+
+  #Other Services We shoul addd
+networks:
+  healthcare-network:
+    driver: bridge
+
+volumes:
+  kafka-data:
