@@ -1,33 +1,45 @@
 import ballerina/graphql;
+// import ballerina/io;
+// import ballerina/uuid;
 
 type schema service object {
     *graphql:Service;
     resource function get getUserById(string id) returns User?;
     resource function get getUsersByRole(string role) returns User?[]?;
-    resource function get getKPIById(string id) returns KPI?;
-    resource function get getEmployeeKPIs(string employeeId) returns EmployeeKPI?[]?;
-    resource function get getDepartmentObjectives(string employeeId) returns DepartmentObjective?[]?;
+    resource function get getKPIById(string id) returns KPIInput?;
+    resource function get getEmployeeKPIs(string empId) returns EmployeeKPIInput?[]?;
+    resource function get getDepartmentObjectives(string objId) returns DepartmentObjective?[]?;
+    resource function get getGrade(string empId) returns GradeOutput?[]?;
     remote function createUser(UserInput user) returns User?;
     remote function updateUser(string id, UserInput user) returns User?;
     remote function deleteUser(string id) returns User?;
-    remote function createKPI(KPIInput kpi) returns KPI?;
-    remote function updateKPI(string id, KPIInput kpi) returns KPI?;
-    remote function deleteKPI(string id) returns KPI?;
-    remote function createEmployeeKPI(EmployeeKPIInput employeeKPI) returns EmployeeKPI?;
+    remote function createKPI(KPIInput kpi) returns KPIInput?;
+    remote function updateKPI(string id, KPIInput kpi) returns KPIInput?;
+    remote function deleteKPI(string id) returns KPIInput?;
+    remote function createEmployeeKPI(EmployeeKPIInput employeeKPI) returns EmployeeKPIInput?;
     remote function createDepartmentObjective(DepartmentObjectiveInput departmentObjective) returns DepartmentObjective?;
 };
 
 public type DepartmentObjectiveInput record {|
-    string employeeId;
+    string objId;
     string kpiId;
     int value;
     string gradedBy;
     int grade;
     string evalDate;
+|};
+
+public type DepartmentObjective record {|
+    readonly string objId;
+    readonly string kpiId;
+    readonly int value;
+    readonly string gradedBy;
+    readonly int grade;
+    readonly string evalDate;
 |};
 
 public type EmployeeKPIInput record {|
-    string employeeId;
+    string empId;
     string kpiId;
     int value;
     string gradedBy;
@@ -35,13 +47,23 @@ public type EmployeeKPIInput record {|
     string evalDate;
 |};
 
-public type GradeInput record {|
-    string employeeId;
-    int grade;
+public type EmployeeKPI record {|
+    readonly string empId;
+    readonly string kpiId;
+    readonly int value;
+    readonly string gradedBy;
+    readonly int grade;
+    readonly string evalDate;
+|};
+
+public type GradeOutput record {|
+    readonly string empId;
+    readonly int grade;
 |};
 
 public type KPIInput record {|
     string name;
+    string objId;
     string objective;
     string unit;
     float weightage;
@@ -49,7 +71,18 @@ public type KPIInput record {|
     string createdAt;
 |};
 
+public type KPI record {|
+    readonly string kpiId;
+    readonly string name;
+    readonly string objective;
+    readonly string unit;
+    readonly float weightage;
+    readonly string createdBy;
+    readonly string createdAt;
+|};
+
 public type UserInput record {|
+    readonly int userId;
     string username;
     string password;
     string role;
@@ -60,118 +93,175 @@ public type UserInput record {|
     string? assignedHoD;
     string?[]? assignedEmployees;
     string?[]? objectives;
-    GradeInput?[]? grades;
+    GradeOutput?[]? grades;
     string?[]? KPIs;
 |};
 
-public distinct service class DepartmentObjective {
-    resource function get employeeId() returns string {
+public type User record {|
+    readonly string userId;
+    string username;
+    readonly string password;
+    string role;
+    string department;
+    string position;
+    string email;
+    string? assignedSupervisor;
+    string? assignedHoD;
+    string?[]? assignedEmployees;
+    string?[]? objectives;
+    readonly GradeOutput?[]? grades;
+    readonly string?[]? KPIs;
+|};
+
+
+table<User> key(userId) usersTable = table [];
+table<UserInput> key(userId) userinputTable = table [];
+table<KPI> key(kpiId) kpisTable = table [];
+table<GradeOutput> key(empId) gradesTable = table [];
+table<EmployeeKPI> key(empId) empkpisTable = table [];
+table<DepartmentObjective> key(objId) depobjTable = table [];
+
+
+service / on new graphql:Listener(9090) {
+
+    resource function get empId(string empId) returns string {
+        return empId;
     }
 
-    resource function get kpiId() returns string {
+    resource function get kpiId(string kpiId) returns string {
+        return kpiId;
     }
 
-    resource function get value() returns int {
+    resource function get value(int value) returns int {
+        return value;
     }
 
-    resource function get gradedBy() returns string {
+    resource function get gradedBy(string gradedBy) returns string {
+        return gradedBy;
     }
 
-    resource function get grade() returns int {
+    resource function get grade(int grade) returns int {
+        return grade;
     }
 
-    resource function get evalDate() returns string {
-    }
-}
-
-public distinct service class EmployeeKPI {
-    resource function get employeeId() returns string {
-    }
-
-    resource function get kpiId() returns string {
-    }
-
-    resource function get value() returns int {
-    }
-
-    resource function get gradedBy() returns string {
-    }
-
-    resource function get grade() returns int {
-    }
-
-    resource function get evalDate() returns string {
-    }
-}
-
-public distinct service class Grade {
-    resource function get employeeId() returns string {
-    }
-
-    resource function get grade() returns int {
-    }
-}
-
-public distinct service class KPI {
-    resource function get _id() returns string {
-    }
-
-    resource function get name() returns string {
-    }
-
-    resource function get objective() returns string {
-    }
-
-    resource function get unit() returns string {
-    }
-
-    resource function get weightage() returns float {
-    }
-
-    resource function get createdBy() returns string {
-    }
-
-    resource function get createdAt() returns string {
+    resource function get evalDate(string evalDate) returns string {
+        return evalDate;
     }
 }
 
-public distinct service class User {
-    resource function get _id() returns string {
+
+service / on new graphql:Listener(9090) {
+    resource function get empId(string empId) returns string {
+        return empId;
     }
 
-    resource function get username() returns string {
+    resource function get kpiId(string kpiId) returns string {
+        return kpiId;
     }
 
-    resource function get password() returns string {
+    resource function get value(int value) returns int {
+        return value;
     }
 
-    resource function get role() returns string {
+    resource function get gradedBy(string gradedBy) returns string {
+        return gradedBy;
     }
 
-    resource function get department() returns string {
+    resource function get grade(int grade) returns int {
+        return grade;
     }
 
-    resource function get position() returns string {
+    resource function get evalDate(string evalDate) returns string {
+        return evalDate;
+    }
+}
+
+service / on new graphql:Listener(9090) {
+    resource function get empId(string empId) returns string {
+        return empId;
     }
 
-    resource function get email() returns string {
+    resource function get grade(int grade) returns int {
+        return grade;
+    }
+}
+
+service / on new graphql:Listener(9090) {
+    resource function get _id(string kpiId) returns string {
+        return kpiId;
     }
 
-    resource function get assignedSupervisor() returns string? {
+    resource function get name(string name) returns string {
+        return name;
     }
 
-    resource function get assignedHoD() returns string? {
+    resource function get objective(string objective) returns string {
+        return objective;
     }
 
-    resource function get assignedEmployees() returns string?[]? {
+    resource function get unit(string unit) returns string {
+        return unit;
     }
 
-    resource function get objectives() returns string?[]? {
+    resource function get weightage(float weightage) returns float {
+        return weightage;
     }
 
-    resource function get grades() returns Grade?[]? {
+    resource function get createdBy(string createdBy) returns string {
+        return createdBy;
+    }
+}
+
+service / on new graphql:Listener(9090) {
+    resource function get _id(string id) returns string {
+        return id;
     }
 
-    resource function get KPIs() returns string?[]? {
+    resource function get username(string username) returns string {
+        return username;
+    }
+
+    resource function get password(string password) returns string {
+        return password;
+    }
+
+    resource function get role(string role) returns string {
+        return role;
+    }
+
+    resource function get department(string department) returns string {
+        return department;
+    }
+
+    resource function get position(string position) returns string {
+        return position;
+    }
+
+    resource function get email(string email) returns string {
+        return email;
+    }
+
+    resource function get assignedSupervisor(string? assignedSupervisor) returns string? {
+        return assignedSupervisor;
+    }
+
+    resource function get assignedHoD(string? assignedHoD) returns string? {
+        return assignedHoD;
+    }
+
+    resource function get assignedEmployees(string?[]? assignedEmployees) returns string?[]? {
+        return assignedEmployees;
+    }
+
+    resource function get objectives(string?[]? objectives) returns string?[]? {
+        return objectives;
+    }
+
+    resource function get grades(GradeOutput?[]? grades) returns GradeOutput?[]? {
+        return grades;
+    }
+
+    resource function get KPIs(string?[]? KPIs) returns string?[]? {
+        return KPIs;
     }
 }
